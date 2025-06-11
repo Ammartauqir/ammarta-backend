@@ -48,7 +48,7 @@ def subscribe():
             <p style="color: #3f3f46;">Keep spreading the knowledge! 🚀</p>
         </div>
         """
-        
+        print("SENDING EMAIL")
         mail.send(msg)
         
         return jsonify({'message': 'Subscription successful'}), 200
@@ -61,7 +61,7 @@ def subscribe():
 @app.route('/api/contact', methods=['POST'])
 def contact():
     try:
-        data = request.json
+        data = request.get_json()
         name = data.get('name')
         email = data.get('email')
         subject = data.get('subject')
@@ -85,6 +85,7 @@ def contact():
         '''
 
         # Send email
+        print("SENDING EMAIL")
         mail.send(msg)
         return jsonify({'message': 'Email sent successfully'}), 200
 
