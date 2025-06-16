@@ -5,12 +5,16 @@ from flask_mail import Mail, Message
 from dotenv import load_dotenv
 from datetime import datetime
 from strava_service import get_cached_activities
+import logging
 
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @app.route("/api/info")
@@ -106,9 +110,14 @@ def get_strava_activities():
         activities = get_cached_activities()
         return jsonify(activities)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Error in /api/strava/activities endpoint: {str(e)}")
+        return jsonify({
+            "error": "Failed to fetch activities",
+            "details": str(e)
+        }), 500
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
