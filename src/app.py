@@ -4,12 +4,18 @@ import os
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
 from datetime import datetime
+from strava_service import get_cached_activities
+
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
+
+@app.route("/api/info")
+def get_info():
+    return jsonify({"message": "Hello, World! from Flask backend"})
 
 # Email configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -93,9 +99,15 @@ def contact():
         print(f'Error sending email: {str(e)}')
         return jsonify({'message': 'Failed to send email'}), 500
 
-@app.route("/api/info")
-def get_info():
-    return jsonify({"message": "Hello, World! from Flask backend"})
+
+@app.route('/api/strava/activities')
+def get_strava_activities():
+    try:
+        activities = get_cached_activities()
+        return jsonify(activities)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
