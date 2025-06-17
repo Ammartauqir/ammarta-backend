@@ -24,6 +24,19 @@ strava_cache = {
 def get_strava_access_token():
     """Get a new access token using the refresh token"""
     try:
+        # Log the presence of required environment variables (without their values)
+        logger.info("Checking environment variables...")
+        if not all([STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN]):
+            missing_vars = []
+            if not STRAVA_CLIENT_ID:
+                missing_vars.append('STRAVA_CLIENT_ID')
+            if not STRAVA_CLIENT_SECRET:
+                missing_vars.append('STRAVA_CLIENT_SECRET')
+            if not STRAVA_REFRESH_TOKEN:
+                missing_vars.append('STRAVA_REFRESH_TOKEN')
+            raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
+
+        logger.info("Attempting to refresh Strava access token...")
         response = requests.post(
             'https://www.strava.com/oauth/token',
             data={
@@ -33,16 +46,24 @@ def get_strava_access_token():
                 'grant_type': 'refresh_token'
             }
         )
-        response.raise_for_status()  # Raise an exception for bad status codes
+        
+        # Log the response status and headers (without sensitive data)
+        logger.info(f"Strava API response status: {response.status_code}")
+        logger.info(f"Strava API response headers: {dict(response.headers)}")
+        
+        response.raise_for_status()
         data = response.json()
         
         if 'access_token' not in data:
             logger.error(f"Strava API response missing access_token: {data}")
             raise KeyError("access_token not found in Strava API response")
             
+        logger.info("Successfully obtained new access token")
         return data['access_token']
     except requests.exceptions.RequestException as e:
         logger.error(f"Error requesting Strava access token: {str(e)}")
+        if hasattr(e.response, 'text'):
+            logger.error(f"Response content: {e.response.text}")
         raise
     except KeyError as e:
         logger.error(f"Error parsing Strava API response: {str(e)}")
