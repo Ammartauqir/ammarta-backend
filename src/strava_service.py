@@ -4,16 +4,23 @@ import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-load_dotenv()
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Load environment variables
+load_dotenv()
+
 # Strava API configuration
-STRAVA_CLIENT_ID = os.getenv('STRAVA_CLIENT_ID')
-STRAVA_CLIENT_SECRET = os.getenv('STRAVA_CLIENT_SECRET')
-STRAVA_REFRESH_TOKEN = os.getenv('STRAVA_REFRESH_TOKEN')
+STRAVA_CLIENT_ID = os.environ.get('STRAVA_CLIENT_ID')
+STRAVA_CLIENT_SECRET = os.environ.get('STRAVA_CLIENT_SECRET')
+STRAVA_REFRESH_TOKEN = os.environ.get('STRAVA_REFRESH_TOKEN')
+
+# Debug environment variables (without exposing values)
+logger.info("Environment variables status:")
+logger.info(f"STRAVA_CLIENT_ID present: {bool(STRAVA_CLIENT_ID)}")
+logger.info(f"STRAVA_CLIENT_SECRET present: {bool(STRAVA_CLIENT_SECRET)}")
+logger.info(f"STRAVA_REFRESH_TOKEN present: {bool(STRAVA_REFRESH_TOKEN)}")
 
 # Cache for Strava data
 strava_cache = {
